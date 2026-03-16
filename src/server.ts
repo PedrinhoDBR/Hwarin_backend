@@ -3,7 +3,10 @@ import express from "express";
 import { AppDataSource } from "./db/data-source";
 import userRoutes from "./routes/user.route";
 import storyRoutes from "./routes/story.routes";
+import authRoutes from "./routes/auth.routes"
 import dotenv from "dotenv";
+import cors from "cors";
+
 dotenv.config();
 
 const app = express();
@@ -11,10 +14,10 @@ app.use(express.json());
 
 const defaultendpoint = "/api";
 
-const cors = require("cors");
 app.use(cors());
 
 const routes = [
+  {path: '/auth', route: authRoutes},
   { path: `/users`, route: userRoutes },
   { path: `/stories`, route: storyRoutes }
 ];

@@ -2,6 +2,7 @@ import {Entity,PrimaryGeneratedColumn,Column,CreateDateColumn,OneToMany} from 't
 import { UserFollow } from './UserFollow';
 import { UserStory } from './UserStory';
 import { StoryRating } from './StoryRating';
+import bcrypt from "bcrypt";
 
 @Entity('users')
 export class User {
@@ -34,4 +35,9 @@ export class User {
 
   @OneToMany(() => StoryRating, (rating) => rating.user)
   ratings!: StoryRating[];
+
+  async validatePassword(password: string) {
+    return bcrypt.compare(password, this.password_hash);
+  }
 }
+
