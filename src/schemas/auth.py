@@ -18,3 +18,7 @@ class LoginUserResponse(BaseModel):
 class LoginResponse(BaseModel):
     message: str
     user: LoginUserResponse
+    token: str
+    accessToken: str
+    token_type: str = "bearer"
+    expires_in: int
