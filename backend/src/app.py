@@ -1,22 +1,22 @@
 import os
 import sys
-from routes import ratings
-from routes import chapter
-from routes import story
-from routes import auth
-from routes import users
-from routes import follows
+from src.routes import ratings
+from src.routes import chapter
+from src.routes import story
+from src.routes import auth
+from src.routes import users
+from src.routes import follows
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from db.database import Base, engine
-from db.database import SessionLocal
-from models.user import User
-import models
-from utils.crypt_password import hash_password
+from src.db.database import Base, engine
+from src.db.database import SessionLocal
+from src.models.user import User
+import src.models
+from src.utils.crypt_password import hash_password
 import uvicorn
 
 load_dotenv()

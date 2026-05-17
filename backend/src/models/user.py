@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from db.database import Base
-from utils.crypt_password import verify_password
+from src.db.database import Base
+from src.utils.crypt_password import verify_password
 
 
 class User(Base):

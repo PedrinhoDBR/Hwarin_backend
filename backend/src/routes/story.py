@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from models.user_story import UserStory
-from db.database import get_db
-from models.story import Story
-from schemas.story import StoryResponse,StoryCreate
-from utils.user import get_current_user
-from models.user import User
+from src.models.user_story import UserStory
+from src.db.database import get_db
+from src.models.story import Story
+from src.schemas.story import StoryResponse,StoryCreate
+from src.utils.user import get_current_user
+from src.models.user import User
 
 router = APIRouter()
 

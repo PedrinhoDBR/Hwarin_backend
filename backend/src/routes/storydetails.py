@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
-from db.database import get_db
-from models.story import Story, StoryGender, StoryRating, StorySuggestion, StoryInfo
-from models.user import User
-from schemas.story import (
+from src.db.database import get_db
+from src.models.story import Story, StoryGender, StoryRating, StorySuggestion, StoryInfo
+from src.models.user import User
+from src.schemas.story import (
     StoryGenderCreate, StoryGenderResponse,
     StoryRatingCreate, StoryRatingResponse,
     StorySuggestionCreate, StorySuggestionResponse,

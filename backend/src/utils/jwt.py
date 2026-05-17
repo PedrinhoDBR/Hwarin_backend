@@ -1,6 +1,6 @@
 import os
 from datetime import datetime, timedelta, timezone
-from utils.security import get_jwt_secret_key, JWT_ALGORITHM,ACCESS_TOKEN_EXPIRE_HOURS
+from src.utils.security import get_jwt_secret_key, JWT_ALGORITHM,ACCESS_TOKEN_EXPIRE_HOURS
 import jwt
 
 def create_access_token(user_id: int, email: str, role: str) -> tuple[str, int]:

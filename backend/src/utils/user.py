@@ -5,10 +5,10 @@ import jwt
 
 from sqlalchemy.orm import Session
 
-from db.database import get_db
-from models.user import User
+from src.db.database import get_db
+from src.models.user import User
 
-from utils.security import (
+from src.utils.security import (
     get_jwt_secret_key,
     JWT_ALGORITHM,
 )

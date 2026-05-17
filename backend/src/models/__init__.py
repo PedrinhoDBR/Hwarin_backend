@@ -1,12 +1,12 @@
-from models.user import User
-from models.story import Story
-from models.user_follow import UserFollow
-from models.user_story import UserStory
-from models.story_filter import StoryFilter
-from models.story_rating import StoryRating
-from models.story_suggestion import StorySuggestion
-from models.story_infos import StoryInfos
-from models.music import Music
+from src.models.user import User
+from src.models.story import Story
+from src.models.user_follow import UserFollow
+from src.models.user_story import UserStory
+from src.models.story_filter import StoryFilter
+from src.models.story_rating import StoryRating
+from src.models.story_suggestion import StorySuggestion
+from src.models.story_infos import StoryInfos
+from src.models.music import Music
 
 __all__ = [
     "User",
