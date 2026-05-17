@@ -4,6 +4,8 @@ import StoryPage from '../pages/StoryPage';
 import UserPage from '../pages/User';
 import CreateStory from '../pages/CreateStory';
 import MyStories from '../pages/MyStory';
+import StoryDetails from '../pages/StoryDetail';
+import ChapterReader from '../pages/ChapterReader';
 
 export interface PrivateRouteDefinition {
   path: string;
@@ -20,4 +22,6 @@ export const privateRoutes: PrivateRouteDefinition[] = [
   { path: '/downloads', title: 'Downloads', element: <div>Downloads</div> },
   { path: '/story/new', title: 'Nova História', element: <CreateStory />  },
   { path: '/stories', title: 'Minhas Histórias', element: <MyStories /> },
+  { path: '/historia/:id', title: 'Detalhes da História', element: <StoryDetails /> },
+  { path: '/historia/:id/capitulo/:chapterId', title: 'Capítulo', element: <ChapterReader /> }
 ];

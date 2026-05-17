@@ -42,7 +42,9 @@ const deleteStory = useMutation({
   },
 
   onSuccess: () => {
-    queryClient.invalidateQueries(['my-stories']);
+    queryClient.invalidateQueries({
+    queryKey: ['my-stories']
+  })
   },
 });
 

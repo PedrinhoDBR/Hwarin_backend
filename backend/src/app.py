@@ -1,9 +1,11 @@
 import os
 import sys
+from routes import ratings
 from routes import chapter
 from routes import story
 from routes import auth
 from routes import users
+from routes import follows
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from contextlib import asynccontextmanager
@@ -73,6 +75,8 @@ app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(story.router, prefix="/api/stories", tags=["stories"])
 app.include_router(chapter.router, prefix="/api/chapters", tags=["chapters"])
+app.include_router(follows.router,prefix="/api/follows",tags=["Follows"])
+app.include_router(ratings.router,prefix="/api/ratings",tags=["Ratings"])
 
 @app.get("/")
 def root():

@@ -22,7 +22,6 @@ def get_my_stories(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    print('tentando pegar histórias do usuário:', current_user.username)
     stories = (
         db.query(Story)
         .join(UserStory)
@@ -50,7 +49,6 @@ def create_story(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    print(f"Usuário autenticado: {current_user.username}")  
     new_story = Story(
         title=story.title,
         subtitle=story.subtitle,

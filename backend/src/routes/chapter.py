@@ -23,6 +23,19 @@ def create_chapter(chapter: ChapterCreate,db: Session = Depends(get_db),):
 
     return new_chapter
 
+@router.get("/{chapter_id}", response_model=ChapterResponse)
+def get_chapter(chapter_id: int, db: Session = Depends(get_db)):
+    chapter = (
+        db.query(Chapter)
+        .filter(Chapter.id == chapter_id)
+        .first()
+    )
+
+    if not chapter:
+        raise HTTPException(status_code=404, detail="Chapter not found")
+
+    return chapter
+
 @router.get("/story/{story_id}",response_model=list[ChapterResponse],)
 def get_story_chapters(story_id: int,db: Session = Depends(get_db),):
     return (

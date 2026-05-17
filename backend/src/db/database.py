@@ -8,10 +8,15 @@ load_dotenv()
 DB_NAME = os.getenv("DB_NAME", "database.sqlite")
 ENVIRONMENT = os.getenv("ENVIRONMENT", "PRODUCTION")
 
-engine = create_engine(
-    f"sqlite:///{DB_NAME}",
-    connect_args={"check_same_thread": False},
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL:
+    engine = create_engine(DATABASE_URL)
+else:
+    engine = create_engine(
+        f"sqlite:///{DB_NAME}",
+        connect_args={"check_same_thread": False},
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

@@ -21,7 +21,6 @@ def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ):
-    print("Token recebido:", token)
 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -44,7 +43,6 @@ def get_current_user(
             raise credentials_exception
 
     except jwt.PyJWTError as e:
-        print("Erro JWT:", str(e))
         raise credentials_exception
 
     user = (

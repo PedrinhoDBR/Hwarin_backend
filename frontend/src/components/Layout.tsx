@@ -7,10 +7,22 @@ import {
   Settings,
   User,
 } from 'lucide-react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+
+import {
+  Outlet,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
+
+import {
+  useEffect,
+} from 'react';
+
 import PageHeader from './PageHeader';
 import { alpha, createAppTheme } from '../theme';
 import { privateRoutes } from '../routes/privateRoutes';
+import { authFetch } from '../services/api';
+import { useAuth } from '../hooks/UseAuth';
 
 const NAV_ITEMS = [
   { icon: Home, label: 'Home', path: '/' },
@@ -24,20 +36,58 @@ const NAV_ITEMS = [
 export default function Layout() {
   const theme = createAppTheme('dark');
   const { brand } = theme;
+
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const pageTitle = privateRoutes.find((route) => route.path === pathname)?.title ?? 'História';
+
+  const { clearAuth } = useAuth();
+
+  const pageTitle =
+    privateRoutes.find(
+      (route) => route.path === pathname
+    )?.title ?? 'História';
+
+  useEffect(() => {
+    async function validateSession() {
+      try {
+        const response = await authFetch(
+          '/api/auth/me'
+        );
+
+        if (response.status === 401) {
+          clearAuth();
+          navigate('/login', {
+            replace: true,
+          });
+
+          return;
+        }
+      } catch {
+        clearAuth();
+
+        navigate('/login', {
+          replace: true,
+        });
+      }
+    }
+
+    validateSession();
+  }, []);
 
   return (
     <div className="flex max-h-screen min-h-screen overflow-hidden">
       <nav className="z-10 flex w-16 shrink-0 flex-col items-center gap-1 border-r border-white/10 bg-black/35 py-6 backdrop-blur-xl">
+
         <button
           type="button"
           onClick={() => navigate('/user')}
           className="mb-2 flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white transition-transform hover:scale-105"
           style={{
             background: brand.accentGradient,
-            boxShadow: `0 0 12px ${alpha(brand.sparkle, 0.6)}`,
+            boxShadow: `0 0 12px ${alpha(
+              brand.sparkle,
+              0.6
+            )}`,
             fontWeight: theme.typography.h5Weight,
           }}
         >
@@ -53,14 +103,32 @@ export default function Layout() {
               key={item.path}
               type="button"
               title={item.label}
-              onClick={() => navigate(item.path)}
+              onClick={() =>
+                navigate(item.path)
+              }
               className="flex h-11 w-11 items-center justify-center transition-all duration-200"
               style={{
-                color: active ? brand.sparkle : alpha(brand.fontColor, 0.45),
+                color: active
+                  ? brand.sparkle
+                  : alpha(
+                      brand.fontColor,
+                      0.45
+                    ),
+
                 borderRadius: `${theme.radius}px`,
-                background: active ? alpha(brand.sparkle, 0.12) : 'transparent',
+
+                background: active
+                  ? alpha(
+                      brand.sparkle,
+                      0.12
+                    )
+                  : 'transparent',
+
                 border: active
-                  ? `1px solid ${alpha(brand.sparkle, 0.3)}`
+                  ? `1px solid ${alpha(
+                      brand.sparkle,
+                      0.3
+                    )}`
                   : '1px solid transparent',
               }}
             >
@@ -74,10 +142,15 @@ export default function Layout() {
         <button
           type="button"
           title="Configurações"
-          onClick={() => navigate('/config')}
+          onClick={() =>
+            navigate('/config')
+          }
           className="flex h-11 w-11 items-center justify-center"
           style={{
-            color: alpha(brand.fontColor, 0.4),
+            color: alpha(
+              brand.fontColor,
+              0.4
+            ),
             borderRadius: `${theme.radius}px`,
           }}
         >
@@ -87,6 +160,7 @@ export default function Layout() {
 
       <main className="flex flex-1 flex-col overflow-hidden">
         <PageHeader title={pageTitle} />
+
         <div className="flex-1 overflow-y-auto">
           <Outlet />
         </div>
