@@ -1,22 +1,22 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import dotenv from "dotenv";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import dotenv from 'dotenv'
 import tailwindcss from '@tailwindcss/vite'
 
-
-dotenv.config();
+dotenv.config()
 
 export default defineConfig({
-  plugins: [react(),
+  plugins: [
+    react(),
     tailwindcss(),
-
   ],
+
   server: {
     proxy: {
-      "/api": {
-        target: process.env.API_URL,
+      '/api': {
+        target: process.env.VITE_API_URL,
         changeOrigin: true,
       },
     },
   },
-});
+})

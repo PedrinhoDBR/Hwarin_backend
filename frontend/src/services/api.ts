@@ -8,6 +8,9 @@ import type {
 
 import { logout } from './auth';
 
+const API_URL =
+  import.meta.env.VITE_API_URL;
+
 function extractToken(
   data: Record<string, unknown>
 ): string | null {
@@ -23,8 +26,7 @@ function extractToken(
       value.length > 0
   );
 
-  return typeof token ===
-    'string'
+  return typeof token === 'string'
     ? token
     : null;
 }
@@ -34,12 +36,12 @@ export async function login(
   password: string
 ): Promise<LoginResponse> {
   const res = await fetch(
-    "/api/auth/login",
+    `${API_URL}/api/auth/login`,
     {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type":
-          "application/json",
+        'Content-Type':
+          'application/json',
       },
       body: JSON.stringify({
         email,
@@ -52,7 +54,7 @@ export async function login(
 
   if (!res.ok) {
     throw new Error(
-      data.error || "Erro no login"
+      data.error || 'Erro no login'
     );
   }
 
@@ -119,7 +121,6 @@ export async function authFetch(
   const token =
     getStoredToken();
 
-  // sem token
   if (!token) {
     logout();
 
@@ -128,7 +129,6 @@ export async function authFetch(
     );
   }
 
-  // token expirado
   if (isTokenExpired(token)) {
     logout();
 
@@ -146,15 +146,19 @@ export async function authFetch(
     `Bearer ${token}`
   );
 
+  const url =
+    typeof input === 'string'
+      ? `${API_URL}${input}`
+      : input;
+
   const response = await fetch(
-    input,
+    url,
     {
       ...init,
       headers,
     }
   );
 
-  // backend respondeu 401
   if (response.status === 401) {
     logout();
 
