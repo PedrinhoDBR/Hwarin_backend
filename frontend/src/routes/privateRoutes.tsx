@@ -19,7 +19,6 @@ export const privateRoutes: PrivateRouteDefinition[] = [
   { path: '/story/:id', title: 'História', element: <CreateStory /> },
   { path: '/search', title: 'Buscar', element: <StoryPage /> },
   { path: '/library', title: 'Biblioteca', element: <div>Biblioteca</div> },
-  { path: '/downloads', title: 'Downloads', element: <div>Downloads</div> },
   { path: '/story/new', title: 'Nova História', element: <CreateStory />  },
   { path: '/stories', title: 'Minhas Histórias', element: <MyStories /> },
   { path: '/historia/:id', title: 'Detalhes da História', element: <StoryDetails /> },

@@ -30,7 +30,6 @@ const NAV_ITEMS = [
   { icon: Search, label: 'Buscar', path: '/search' },
   { icon: BookOpen, label: 'Biblioteca', path: '/library' },
   { icon: PenSquare, label: 'História', path: '/stories' },
-  { icon: Download, label: 'Downloads', path: '/downloads' },
 ];
 
 export default function Layout() {
