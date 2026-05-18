@@ -6,6 +6,7 @@ import StoryHeader from '../components/story/StoryHeader';
 import ChapterList from '../components/story/ChapterList';
 import CommentsSection from '../components/story/CommentsSection';
 import { authFetch } from '../services/api';
+import { PageHeader } from '../components';
 
 export default function StoryDetails() {
   const storyId = window.location.pathname.split('/historia/')[1]?.split('/')[0];
@@ -128,8 +129,6 @@ export default function StoryDetails() {
 
   return (
     <div className="min-h-screen">
-
-
       <div className="p-6 space-y-6 max-w-6xl">
         <StoryHeader
           story={story}

@@ -1,26 +1,88 @@
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+
+import PageHeader from '../components/PageHeader';
+import FeaturedStory from '../components/home/FeaturedStory';
+import CommunitySection from '../components/home/CommunitySection';
+import RecentUpdates from '../components/home/RecentUpdates';
+import LibrarySection from '../components/home/LibrarySection';
+
+import { authFetch } from '../services/api';
+
+async function getStories() {
+  const response = await authFetch('/api/stories');
+
+  if (!response.ok) {
+    throw new Error('Erro ao buscar histórias');
+  }
+
+  return response.json();
+}
+
 export default function Home() {
+  const {
+    data: stories = [],
+    isLoading,
+  } = useQuery({
+    queryKey: ['stories'],
+    queryFn: getStories,
+  });
+
+  const featured = stories[0];
+
   return (
-    <section className="p-6 text-foreground flex gap-6">
-      <div className="rounded-3xl border border-white/10 bg-black/25 p-8 backdrop-blur-md w-1/4 flex flex-col justify-center items-center">
-        <img src="/LogoPink.png" alt="Description" className="mb-4 rounded-lg w-40" />
-        <h2 className="mb-3 text-2xl font-semibold text-foreground">Title</h2>
-        <p className="max-w-2xl text-sm leading-7 text-muted-foreground"> Continue lendo </p>
-        <button className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md">
-          Ler mais
-        </button>
-      </div>
+    <div className="min-h-screen">
+      <PageHeader title="Página Inicial" />
 
-      <div className="rounded-3xl border border-white/10 bg-black/25 p-8 backdrop-blur-md w-2/4">
-        <h2 className="mb-3 text-2xl font-semibold text-foreground">Bem-vindo ao </h2>
-        <p className="max-w-2xl text-sm leading-7 text-muted-foreground"> a
-        </p>
-      </div>
+      <div className="p-6 space-y-6">
+        {/* Top Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div className="lg:col-span-3">
+            {isLoading ? (
+              <div className="rounded-2xl border border-border/30 bg-card/50 h-52 animate-pulse" />
+            ) : (
+              <FeaturedStory story={featured} />
+            )}
+          </div>
 
-      <div className="rounded-3xl border border-white/10 bg-black/25 p-8 backdrop-blur-md w-1/4">
-        <h2 className="mb-3 text-2xl font-semibold text-foreground">Bem-vindo ao </h2>
-        <p className="max-w-2xl text-sm leading-7 text-muted-foreground"> a
-        </p>
+          <div className="lg:col-span-5">
+            <CommunitySection />
+          </div>
+
+          <div className="lg:col-span-4">
+            <RecentUpdates stories={stories} />
+          </div>
+        </div>
+
+        {/* Library */}
+        {isLoading ? (
+          <div className="rounded-2xl border border-border/30 bg-card/50 h-64 animate-pulse" />
+        ) : (
+          <LibrarySection stories={stories} />
+        )}
+
+        {/* Background */}
+        <div className="relative h-40 rounded-2xl overflow-hidden border border-border/20 bg-gradient-to-b from-primary/5 via-accent/5 to-background">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="text-muted-foreground text-sm font-heading">
+              ✨ Explore o universo de histórias ✨
+            </p>
+          </div>
+
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-1 h-1 bg-primary/40 rounded-full animate-pulse"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 3}s`,
+                animationDuration: `${2 + Math.random() * 3}s`,
+              }}
+            />
+          ))}
+        </div>
       </div>
-    </section>
+    </div>
   );
 }

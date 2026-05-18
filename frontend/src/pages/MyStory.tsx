@@ -6,6 +6,7 @@ import { Badge } from '../components/ui/badge';
 import { Plus, BookOpen, Edit, } from 'lucide-react';
 import { authFetch } from '../services/api';
 import { Trash2 } from 'lucide-react';
+import { PageHeader } from '../components';
 
 
 const statusLabels = {
@@ -78,11 +79,11 @@ const deleteStory = useMutation({
   }, {});
 
   return (
+  <div className="min-h-screen">
+    <PageHeader title="Minhas Histórias" />
     <section className="p-6 text-foreground justify-center overflow-x-hidden">
-        
-      <div className="p-6 rounded-3xl border border-white/20 bg-black/60">
 
-        {/* HEADER */}
+      <div className="p-6 rounded-3xl border border-white/20 bg-black/60">
         <div className="flex items-center justify-between">
           <Link to="/story/new">
             <Button className="bg-primary hover:bg-primary/80 rounded-full text-sm gap-2">
@@ -184,5 +185,7 @@ const deleteStory = useMutation({
         )}
       </div>
     </section>
+    </div>
+
   );
 }

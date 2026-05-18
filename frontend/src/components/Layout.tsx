@@ -26,7 +26,7 @@ import { useAuth } from '../hooks/UseAuth';
 
 const NAV_ITEMS = [
   { icon: Home, label: 'Home', path: '/' },
-  { icon: User, label: 'Perfil', path: '/user' },
+  // { icon: User, label: 'Perfil', path: '/user' },
   { icon: Search, label: 'Buscar', path: '/search' },
   { icon: BookOpen, label: 'Biblioteca', path: '/library' },
   { icon: PenSquare, label: 'História', path: '/stories' },
@@ -158,7 +158,7 @@ export default function Layout() {
       </nav>
 
       <main className="flex flex-1 flex-col overflow-hidden">
-        <PageHeader title={pageTitle} />
+        {/* <PageHeader title={pageTitle} /> */}
 
         <div className="flex-1 overflow-y-auto">
           <Outlet />

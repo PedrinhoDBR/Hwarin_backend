@@ -7,7 +7,7 @@ import {
   Sparkles,
   Star,
 } from 'lucide-react';
-import { Button } from '../components/index';
+import { Button, PageHeader } from '../components/index';
 import { alpha, createAppTheme } from '../theme';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -67,6 +67,7 @@ export default function StoryPage() {
       className="flex h-full flex-col overflow-hidden"
       style={{ color: text.primary, fontFamily: theme.fontFamily }}
     >
+      
       <div className="flex-1 overflow-y-auto p-6 teste">
         <div className="flex flex-col gap-6">
           <section className="flex flex-col gap-6 xl:flex-row xl:items-start">
