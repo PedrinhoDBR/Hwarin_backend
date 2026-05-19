@@ -1,6 +1,5 @@
 import {
   type FormEvent,
-  useEffect,
   useState,
 } from 'react';
 import { Search } from 'lucide-react';
@@ -25,10 +24,7 @@ export default function PageHeader({
   const theme = createAppTheme('dark');
   const navigate = useNavigate();
   const [search, setSearch] = useState(searchValue ?? '');
-
-  useEffect(() => {
-    setSearch(searchValue ?? '');
-  }, [searchValue]);
+  const visibleSearch = searchValue ?? search;
 
   function handleSearchChange(value: string) {
     setSearch(value);
@@ -38,7 +34,7 @@ export default function PageHeader({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const query = search.trim();
+    const query = visibleSearch.trim();
 
     if (onSearch) {
       onSearch(query);
@@ -73,7 +69,7 @@ export default function PageHeader({
             <input
               type="search"
               placeholder={searchPlaceholder}
-              value={search}
+              value={visibleSearch}
               onChange={(event) =>
                 handleSearchChange(event.target.value)
               }

@@ -11,4 +11,4 @@ export interface AuthSession {
   token: string;
 }
 
-export interface LoginResponse extends AuthSession {}
+export type LoginResponse = AuthSession;
