@@ -1,4 +1,3 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import PageHeader from '../components/PageHeader';
@@ -9,11 +8,24 @@ import LibrarySection from '../components/home/LibrarySection';
 
 import { authFetch } from '../services/api';
 
-async function getStories() {
+export interface Story {
+  id: number;
+  title?: string | null;
+  subtitle?: string | null;
+  synopsis?: string | null;
+  status?: string | null;
+  language?: string | null;
+  cover?: string | null;
+  cover_url?: string | null;
+  tags?: string[];
+  genres?: string[];
+}
+
+async function getStories(): Promise<Story[]> {
   const response = await authFetch('/api/stories');
 
   if (!response.ok) {
-    throw new Error('Erro ao buscar histórias');
+    throw new Error('Erro ao buscar historias');
   }
 
   return response.json();
@@ -23,6 +35,7 @@ export default function Home() {
   const {
     data: stories = [],
     isLoading,
+    isError,
   } = useQuery({
     queryKey: ['stories'],
     queryFn: getStories,
@@ -32,14 +45,19 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <PageHeader title="Página Inicial" />
+      <PageHeader title="Inicio" />
 
-      <div className="p-6 space-y-6">
-        {/* Top Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <div className="space-y-6 p-6">
+        {isError && (
+          <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+            Nao foi possivel carregar as historias agora.
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           <div className="lg:col-span-3">
             {isLoading ? (
-              <div className="rounded-2xl border border-border/30 bg-card/50 h-52 animate-pulse" />
+              <div className="h-52 rounded-2xl border border-border/30 bg-card/50 animate-pulse" />
             ) : (
               <FeaturedStory story={featured} />
             )}
@@ -54,30 +72,28 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Library */}
         {isLoading ? (
-          <div className="rounded-2xl border border-border/30 bg-card/50 h-64 animate-pulse" />
+          <div className="h-64 rounded-2xl border border-border/30 bg-card/50 animate-pulse" />
         ) : (
           <LibrarySection stories={stories} />
         )}
 
-        {/* Background */}
-        <div className="relative h-40 rounded-2xl overflow-hidden border border-border/20 bg-gradient-to-b from-primary/5 via-accent/5 to-background">
+        <div className="relative h-40 overflow-hidden rounded-2xl border border-border/20 bg-gradient-to-b from-primary/5 via-accent/5 to-background">
           <div className="absolute inset-0 flex items-center justify-center">
-            <p className="text-muted-foreground text-sm font-heading">
-              ✨ Explore o universo de histórias ✨
+            <p className="text-sm text-muted-foreground font-heading">
+              Explore o universo de historias
             </p>
           </div>
 
-          {[...Array(20)].map((_, i) => (
+          {Array.from({ length: 20 }, (_, index) => (
             <div
-              key={i}
-              className="absolute w-1 h-1 bg-primary/40 rounded-full animate-pulse"
+              key={index}
+              className="absolute h-1 w-1 rounded-full bg-primary/40 animate-pulse"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
+                left: `${(index * 37) % 100}%`,
+                top: `${(index * 53) % 100}%`,
+                animationDelay: `${(index % 5) * 0.45}s`,
+                animationDuration: `${2 + (index % 4) * 0.5}s`,
               }}
             />
           ))}

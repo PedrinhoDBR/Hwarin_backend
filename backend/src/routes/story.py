@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from src.models.user_story import UserStory
@@ -13,9 +13,27 @@ router = APIRouter()
 
 
 
+@router.get("", response_model=List[StoryResponse])
 @router.get("/", response_model=List[StoryResponse])
-def get_stories(db: Session = Depends(get_db)):
-    return db.query(Story).all()
+def get_stories(
+    q: Optional[str] = Query(default=None),
+    db: Session = Depends(get_db),
+):
+    stories_query = db.query(Story)
+
+    if q and q.strip():
+        search = f"%{q.strip()}%"
+        stories_query = stories_query.filter(
+            or_(
+                Story.title.ilike(search),
+                Story.subtitle.ilike(search),
+                Story.synopsis.ilike(search),
+                Story.language.ilike(search),
+                Story.status.ilike(search),
+            )
+        )
+
+    return stories_query.all()
 
 @router.get("/me",response_model=List[StoryResponse])
 def get_my_stories(

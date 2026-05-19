@@ -4,7 +4,7 @@ import { Alert, Button, Input } from '../components/index';
 import { Mail, Lock, ArrowRight, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/UseAuth';
-import { login } from '../services/api';
+import { login, registerUser } from '../services/api';
 
 export default function Welcome() {
   const navigate = useNavigate();
@@ -20,8 +20,11 @@ export default function Welcome() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (activeTab !== 'login') {
-      setErrorMessage('Cadastro ainda nao esta disponivel.');
+    const normalizedEmail = email.trim();
+    const normalizedName = fullName.trim();
+
+    if (activeTab === 'cadastro' && !normalizedName) {
+      setErrorMessage('Informe seu nome para criar a conta.');
       setErrorOpen(true);
       return;
     }
@@ -29,7 +32,15 @@ export default function Welcome() {
     setIsSubmitting(true);
 
     try {
-      const result = await login(email, password);
+      if (activeTab === 'cadastro') {
+        await registerUser({
+          username: normalizedName,
+          email: normalizedEmail,
+          password,
+        });
+      }
+
+      const result = await login(normalizedEmail, password);
       setAuthSession(result);
       navigate('/');
     } catch (error: unknown) {
@@ -131,7 +142,7 @@ export default function Welcome() {
                 icon={<Lock className="h-4 w-4" />}
                 value={password}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => setPassword(event.target.value)}
-                autoComplete="current-password"
+                autoComplete={activeTab === 'login' ? 'current-password' : 'new-password'}
                 required
               />
 
@@ -141,7 +152,9 @@ export default function Welcome() {
                 disabled={isSubmitting}
               >
                 {isSubmitting
-                  ? 'Entrando...'
+                  ? activeTab === 'login'
+                    ? 'Entrando...'
+                    : 'Criando conta...'
                   : activeTab === 'login'
                     ? 'Entrar'
                     : 'Criar Conta'}

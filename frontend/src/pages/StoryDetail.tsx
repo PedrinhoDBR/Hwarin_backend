@@ -113,22 +113,29 @@ export default function StoryDetails() {
 
   if (loadingStory) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      <div className="min-h-screen">
+        <PageHeader title="Historia" />
+        <div className="flex min-h-80 items-center justify-center">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </div>
       </div>
     );
   }
 
   if (!story) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">História não encontrada.</p>
+      <div className="min-h-screen">
+        <PageHeader title="Historia" />
+        <div className="flex min-h-80 items-center justify-center">
+          <p className="text-muted-foreground">Historia nao encontrada.</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen">
+      <PageHeader title={story.title || 'Historia'} />
       <div className="p-6 space-y-6 max-w-6xl">
         <StoryHeader
           story={story}

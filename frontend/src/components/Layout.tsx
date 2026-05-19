@@ -1,35 +1,27 @@
 import {
   BookOpen,
-  Download,
   Home,
+  LogOut,
   PenSquare,
   Search,
   Settings,
-  User,
 } from 'lucide-react';
-
 import {
   Outlet,
   useLocation,
   useNavigate,
 } from 'react-router-dom';
+import { useEffect } from 'react';
 
-import {
-  useEffect,
-} from 'react';
-
-import PageHeader from './PageHeader';
 import { alpha, createAppTheme } from '../theme';
-import { privateRoutes } from '../routes/privateRoutes';
 import { authFetch } from '../services/api';
 import { useAuth } from '../hooks/UseAuth';
 
 const NAV_ITEMS = [
   { icon: Home, label: 'Home', path: '/' },
-  // { icon: User, label: 'Perfil', path: '/user' },
   { icon: Search, label: 'Buscar', path: '/search' },
   { icon: BookOpen, label: 'Biblioteca', path: '/library' },
-  { icon: PenSquare, label: 'História', path: '/stories' },
+  { icon: PenSquare, label: 'Minhas historias', path: '/stories' },
 ];
 
 export default function Layout() {
@@ -38,13 +30,12 @@ export default function Layout() {
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { clearAuth, user } = useAuth();
 
-  const { clearAuth } = useAuth();
-
-  const pageTitle =
-    privateRoutes.find(
-      (route) => route.path === pathname
-    )?.title ?? 'História';
+  const username =
+    user?.username ?? user?.name ?? 'Usuario';
+  const userInitial =
+    username.charAt(0).toUpperCase();
 
   useEffect(() => {
     async function validateSession() {
@@ -58,8 +49,6 @@ export default function Layout() {
           navigate('/login', {
             replace: true,
           });
-
-          return;
         }
       } catch {
         clearAuth();
@@ -71,15 +60,22 @@ export default function Layout() {
     }
 
     validateSession();
-  }, []);
+  }, [clearAuth, navigate]);
+
+  function handleLogout() {
+    clearAuth();
+    navigate('/login', {
+      replace: true,
+    });
+  }
 
   return (
     <div className="flex max-h-screen min-h-screen overflow-hidden">
       <nav className="z-10 flex w-16 shrink-0 flex-col items-center gap-1 border-r border-white/10 bg-black/35 py-6 backdrop-blur-xl">
-
         <button
           type="button"
           onClick={() => navigate('/user')}
+          title={username}
           className="mb-2 flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white transition-transform hover:scale-105"
           style={{
             background: brand.accentGradient,
@@ -90,11 +86,14 @@ export default function Layout() {
             fontWeight: theme.typography.h5Weight,
           }}
         >
-          U
+          {userInitial}
         </button>
 
         {NAV_ITEMS.map((item) => {
-          const active = pathname === item.path;
+          const active =
+            pathname === item.path ||
+            (item.path !== '/' &&
+              pathname.startsWith(item.path));
           const Icon = item.icon;
 
           return (
@@ -140,7 +139,7 @@ export default function Layout() {
 
         <button
           type="button"
-          title="Configurações"
+          title="Configuracoes"
           onClick={() =>
             navigate('/config')
           }
@@ -155,11 +154,25 @@ export default function Layout() {
         >
           <Settings className="h-5 w-5" />
         </button>
+
+        <button
+          type="button"
+          title="Sair"
+          onClick={handleLogout}
+          className="flex h-11 w-11 items-center justify-center"
+          style={{
+            color: alpha(
+              brand.fontColor,
+              0.4
+            ),
+            borderRadius: `${theme.radius}px`,
+          }}
+        >
+          <LogOut className="h-5 w-5" />
+        </button>
       </nav>
 
       <main className="flex flex-1 flex-col overflow-hidden">
-        {/* <PageHeader title={pageTitle} /> */}
-
         <div className="flex-1 overflow-y-auto">
           <Outlet />
         </div>

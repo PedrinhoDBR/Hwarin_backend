@@ -5,9 +5,8 @@ import StoryForm from '../components/create/StoryForm';
 import ChapterEditor from '../components/create/ChapterEditor';
 import {Tabs,TabsContent,TabsList,TabsTrigger,} from '../components/ui/tabs';
 import { authFetch } from '../services/api';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '../components/ui/button';
 import { useToast } from '../hooks/useToast';
+import PageHeader from '../components/PageHeader';
 
 type StoryData = {
   title: string;
@@ -131,15 +130,25 @@ export default function CreateStory() {
 
   if (isLoadingStory) {
     return (
-      <section className="p-6 text-foreground">
-        Carregando história...
-      </section>
+      <div className="min-h-screen">
+        <PageHeader
+          title={isEditing ? 'Editar historia' : 'Nova historia'}
+        />
+        <section className="p-6 text-foreground">
+          Carregando historia...
+        </section>
+      </div>
     );
   }
 
   return (
+  <div className="min-h-screen">
+    <PageHeader
+      title={isEditing ? 'Editar historia' : 'Nova historia'}
+    />
+
   <section className="p-6 text-foreground justify-center overflow-x-hidden">
-    <div className="min-h-screen w-full max-w-full rounded-3xl border border-white/20 bg-black/60">
+    <div className="w-full max-w-full rounded-3xl border border-white/20 bg-black/60">
       {/* <div className="mb-4">
         <Button
           variant="ghost"
@@ -223,5 +232,6 @@ export default function CreateStory() {
       </div>
       <ToastContainer />
     </section>
+  </div>
   );
 }
