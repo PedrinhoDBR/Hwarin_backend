@@ -1,34 +1,52 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { BookOpen, Play } from 'lucide-react';
 import { Button } from '../ui/button';
-import { Play } from 'lucide-react';
 
 export default function FeaturedStory({ story }) {
-  if (!story) return null;
+  if (!story) {
+    return (
+      <div className="flex h-full min-h-52 items-center justify-center rounded-2xl border border-border/30 bg-card/50 p-5 text-sm text-muted-foreground">
+        Nenhuma historia publicada ainda.
+      </div>
+    );
+  }
+
+  const cover = story.cover || story.cover_url;
 
   return (
-    <Link to={`/historia/${story.id}`} className="block group">
-      <div className="relative rounded-2xl overflow-hidden border border-border/30 bg-card/50 p-5 flex gap-5 items-center transition-all hover:border-primary/40">
-        <div className="w-32 h-44 rounded-xl overflow-hidden flex-shrink-0 border border-border/20 shadow-xl shadow-primary/5">
-          {story.cover_url ? (
-            <img src={story.cover_url} alt={story.title} className="w-full h-full object-cover" />
+    <Link to={`/historia/${story.id}`} className="group block">
+      <div className="relative flex items-center gap-5 overflow-hidden rounded-2xl border border-border/30 bg-card/50 p-5 transition-all hover:border-primary/40">
+        <div className="h-44 w-32 flex-shrink-0 overflow-hidden rounded-xl border border-border/20 shadow-xl shadow-primary/5">
+          {cover ? (
+            <img
+              src={cover}
+              alt={story.title}
+              className="h-full w-full object-cover"
+            />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary/40 to-accent/40 flex items-center justify-center">
-              <span className="text-4xl">📖</span>
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/40 to-accent/40">
+              <BookOpen className="h-9 w-9 text-foreground/70" />
             </div>
           )}
         </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-heading font-bold text-sm uppercase tracking-wide text-foreground/60 mb-1">
-            Nome do Título
+
+        <div className="min-w-0 flex-1">
+          <h3 className="mb-1 text-sm font-bold uppercase tracking-wide text-foreground/60 font-heading">
+            Destaque
           </h3>
-          <p className="text-lg font-heading font-bold text-foreground truncate">
+          <p className="truncate text-lg font-bold text-foreground font-heading">
             {story.title}
           </p>
-          <p className="text-xs text-muted-foreground mt-1">Continue lendo</p>
-          <div className="flex items-center gap-2 mt-3">
-            <Play className="w-3 h-3 text-primary" />
-            <Button size="sm" className="h-7 text-xs bg-primary/20 text-primary hover:bg-primary/30 border border-primary/30 rounded-full px-4">
+          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+            {story.synopsis || 'Continue lendo'}
+          </p>
+          <div className="mt-3 flex items-center gap-2">
+            <Play className="h-3 w-3 text-primary" />
+            <Button
+              size="sm"
+              className="h-7 rounded-full border border-primary/30 bg-primary/20 px-4 text-xs text-primary hover:bg-primary/30"
+            >
               Ler mais
             </Button>
           </div>

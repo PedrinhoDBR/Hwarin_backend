@@ -1,4 +1,5 @@
 import React, { useEffect, useState,useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -21,6 +22,7 @@ export default function StoryForm({
   onSubmit,
   isLoading,
 }) {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     title: '',
     subtitle: '',
@@ -35,7 +37,6 @@ export default function StoryForm({
   });
 
   const [tagInput, setTagInput] = useState('');
-    useState('');
 
   useEffect(() => {
     if (initialData) {

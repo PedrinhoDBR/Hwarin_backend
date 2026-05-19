@@ -1,21 +1,102 @@
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from src.models.user_story import UserStory
 from src.db.database import get_db
 from src.models.story import Story
+from src.models.story_filter import StoryFilter
 from src.schemas.story import StoryResponse,StoryCreate
 from src.utils.user import get_current_user
 from src.models.user import User
 
 router = APIRouter()
 
+GENRE_FILTER_TYPES = ("genre", "genres", "genero", "generos", "gênero", "gêneros")
+TAG_FILTER_TYPES = ("tag", "tags")
 
 
+def _clean_values(values: List[str]) -> List[str]:
+    cleaned = []
+    seen = set()
+
+    for value in values or []:
+        normalized = value.strip()
+        key = normalized.casefold()
+
+        if normalized and key not in seen:
+            cleaned.append(normalized)
+            seen.add(key)
+
+    return cleaned
+
+
+def _sync_story_filters(story: Story, genres: List[str], tags: List[str]) -> None:
+    story.filters = [
+        story_filter
+        for story_filter in story.filters
+        if story_filter.type not in GENRE_FILTER_TYPES + TAG_FILTER_TYPES
+    ]
+
+    story.filters.extend(
+        StoryFilter(type="genre", description=genre)
+        for genre in _clean_values(genres)
+    )
+
+    story.filters.extend(
+        StoryFilter(type="tag", description=tag)
+        for tag in _clean_values(tags)
+    )
+
+
+def _filter_match(filter_types: tuple[str, ...], value: str):
+    return Story.filters.any(
+        and_(
+            StoryFilter.type.in_(filter_types),
+            StoryFilter.description.ilike(f"%{value.strip()}%"),
+        )
+    )
+
+
+
+@router.get("", response_model=List[StoryResponse])
 @router.get("/", response_model=List[StoryResponse])
-def get_stories(db: Session = Depends(get_db)):
-    return db.query(Story).all()
+def get_stories(
+    q: Optional[str] = Query(default=None),
+    status: Optional[str] = Query(default=None),
+    language: Optional[str] = Query(default=None),
+    genre: Optional[str] = Query(default=None),
+    tag: Optional[str] = Query(default=None),
+    db: Session = Depends(get_db),
+):
+    stories_query = db.query(Story)
+
+    if q and q.strip():
+        search = f"%{q.strip()}%"
+        stories_query = stories_query.filter(
+            or_(
+                Story.title.ilike(search),
+                Story.subtitle.ilike(search),
+                Story.synopsis.ilike(search),
+                Story.language.ilike(search),
+                Story.status.ilike(search),
+                Story.filters.any(StoryFilter.description.ilike(search)),
+            )
+        )
+
+    if status and status.strip():
+        stories_query = stories_query.filter(Story.status == status.strip())
+
+    if language and language.strip():
+        stories_query = stories_query.filter(Story.language == language.strip())
+
+    if genre and genre.strip():
+        stories_query = stories_query.filter(_filter_match(GENRE_FILTER_TYPES, genre))
+
+    if tag and tag.strip():
+        stories_query = stories_query.filter(_filter_match(TAG_FILTER_TYPES, tag))
+
+    return stories_query.all()
 
 @router.get("/me",response_model=List[StoryResponse])
 def get_my_stories(
@@ -62,6 +143,7 @@ def create_story(
     db.add(new_story)
 
     db.flush()
+    _sync_story_filters(new_story, story.genres, story.tags)
 
     user_story = UserStory(
         user_id=current_user.id,
@@ -112,6 +194,7 @@ def update_story(
     existing_story.status = story.status
     existing_story.cover = story.cover
     existing_story.master_story_id = story.master_story_id
+    _sync_story_filters(existing_story, story.genres, story.tags)
 
     db.commit()
     db.refresh(existing_story)

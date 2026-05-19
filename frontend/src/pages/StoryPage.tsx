@@ -7,7 +7,7 @@ import {
   Sparkles,
   Star,
 } from 'lucide-react';
-import { Button, PageHeader } from '../components/index';
+import { Button } from '../components/index';
 import { alpha, createAppTheme } from '../theme';
 
 // ─── Types ────────────────────────────────────────────────────────────────────

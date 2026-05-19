@@ -1,22 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {useMutation,useQuery,} from '@tanstack/react-query';
 import {useNavigate,useParams,} from 'react-router-dom';
 import StoryForm from '../components/create/StoryForm';
 import ChapterEditor from '../components/create/ChapterEditor';
 import {Tabs,TabsContent,TabsList,TabsTrigger,} from '../components/ui/tabs';
 import { authFetch } from '../services/api';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '../components/ui/button';
 import { useToast } from '../hooks/useToast';
+import PageHeader from '../components/PageHeader';
 
 type StoryData = {
   title: string;
   subtitle?: string;
-  text: string;
+  synopsis: string;
   language: string;
   status: string;
   cover?: string;
   master_story_id?: number | null;
+  genres: string[];
+  tags: string[];
+};
+
+type StoryRecord = StoryData & {
+  id: number;
+};
+
+type StoryFormData = StoryData & {
+  is_collaborative?: boolean;
 };
 
 export default function CreateStory() {
@@ -27,7 +36,7 @@ export default function CreateStory() {
   const isEditing = (id !== 'new') && (id !== undefined);
 
   const [createdStory, setCreatedStory] =
-    useState<any>(null);
+    useState<StoryRecord | null>(null);
 
   const [activeTab, setActiveTab] =
     useState('info');
@@ -35,7 +44,7 @@ export default function CreateStory() {
   const {
     data: story,
     isLoading: isLoadingStory,
-  } = useQuery({
+  } = useQuery<StoryRecord | null>({
     queryKey: ['story', id],
 
     enabled: isEditing,
@@ -55,14 +64,9 @@ export default function CreateStory() {
       return response.json();
     },
   });
+  const activeStory = createdStory ?? story;
 
-  useEffect(() => {
-    if (story) {
-      setCreatedStory(story);
-    }
-  }, [story]);
-
-  const saveStory = useMutation({
+  const saveStory = useMutation<StoryRecord, Error, StoryData>({
     mutationFn: async (
       storyData: StoryData
     ) => {
@@ -115,7 +119,7 @@ export default function CreateStory() {
   });
 
   const handleSaveStory = (
-    formData: any
+    formData: StoryFormData
   ) => {
     saveStory.mutate({
       title: formData.title,
@@ -124,6 +128,8 @@ export default function CreateStory() {
       language: formData.language,
       status: formData.status,
       cover: formData.cover,
+      genres: formData.genres,
+      tags: formData.tags,
       master_story_id:
         formData.master_story_id,
     });
@@ -131,15 +137,25 @@ export default function CreateStory() {
 
   if (isLoadingStory) {
     return (
-      <section className="p-6 text-foreground">
-        Carregando história...
-      </section>
+      <div className="min-h-screen">
+        <PageHeader
+          title={isEditing ? 'Editar historia' : 'Nova historia'}
+        />
+        <section className="p-6 text-foreground">
+          Carregando historia...
+        </section>
+      </div>
     );
   }
 
   return (
+  <div className="min-h-screen">
+    <PageHeader
+      title={isEditing ? 'Editar historia' : 'Nova historia'}
+    />
+
   <section className="p-6 text-foreground justify-center overflow-x-hidden">
-    <div className="min-h-screen w-full max-w-full rounded-3xl border border-white/20 bg-black/60">
+    <div className="w-full max-w-full rounded-3xl border border-white/20 bg-black/60">
       {/* <div className="mb-4">
         <Button
           variant="ghost"
@@ -166,7 +182,7 @@ export default function CreateStory() {
 
               <TabsTrigger
                 value="chapters"
-                disabled={!createdStory}
+                disabled={!activeStory}
                 className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
               >
                 Capítulos
@@ -190,6 +206,10 @@ export default function CreateStory() {
                           story.status,
                         cover:
                           story.cover,
+                        genres:
+                          story.genres,
+                        tags:
+                          story.tags,
                         master_story_id:
                           story.master_story_id,
                       }
@@ -205,14 +225,14 @@ export default function CreateStory() {
             </TabsContent>
 
             <TabsContent value="chapters">
-              {createdStory && (
+              {activeStory && (
                 <ChapterEditor
                   storyId={
-                    createdStory.id
+                    activeStory.id
                   }
                   onDone={() =>
                     navigate(
-                      `/historia/${createdStory.id}`
+                      `/historia/${activeStory.id}`
                     )
                   }
                 />
@@ -223,5 +243,6 @@ export default function CreateStory() {
       </div>
       <ToastContainer />
     </section>
+  </div>
   );
 }

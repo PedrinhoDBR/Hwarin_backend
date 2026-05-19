@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import inspect, text
 from dotenv import load_dotenv
 from src.db.database import Base, engine
 from src.db.database import SessionLocal
@@ -50,12 +51,41 @@ def ensure_admin_user() -> None:
         db.close()
 
 
+def ensure_story_schema() -> None:
+    inspector = inspect(engine)
+
+    if "story" not in inspector.get_table_names():
+        return
+
+    columns = {
+        column["name"]
+        for column in inspector.get_columns("story")
+    }
+
+    if "synopsis" in columns:
+        return
+
+    with engine.begin() as connection:
+        connection.execute(
+            text("ALTER TABLE story ADD COLUMN synopsis TEXT")
+        )
+
+        if "text" in columns:
+            connection.execute(
+                text(
+                    'UPDATE story SET synopsis = "text" '
+                    "WHERE synopsis IS NULL"
+                )
+            )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     if ENVIRONMENT == "DEVELOPMENT":
         Base.metadata.drop_all(bind=engine)
 
     Base.metadata.create_all(bind=engine)
+    ensure_story_schema()
     ensure_admin_user()
     yield
 

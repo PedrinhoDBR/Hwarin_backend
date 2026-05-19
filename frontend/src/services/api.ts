@@ -9,7 +9,42 @@ import type {
 import { logout } from './auth';
 
 const API_URL =
-  import.meta.env.VITE_API_URL;
+  import.meta.env.VITE_API_URL ?? '';
+
+interface RegisterPayload {
+  username: string;
+  email: string;
+  password: string;
+}
+
+async function readJsonResponse(
+  response: Response
+): Promise<Record<string, unknown>> {
+  try {
+    return await response.json();
+  } catch {
+    return {};
+  }
+}
+
+function getErrorMessage(
+  data: Record<string, unknown>,
+  fallback: string
+): string {
+  if (typeof data.detail === 'string') {
+    return data.detail;
+  }
+
+  if (typeof data.error === 'string') {
+    return data.error;
+  }
+
+  if (typeof data.message === 'string') {
+    return data.message;
+  }
+
+  return fallback;
+}
 
 function extractToken(
   data: Record<string, unknown>
@@ -50,11 +85,11 @@ export async function login(
     }
   );
 
-  const data = await res.json();
+  const data = await readJsonResponse(res);
 
   if (!res.ok) {
     throw new Error(
-      data.error || 'Erro no login'
+      getErrorMessage(data, 'Erro no login')
     );
   }
 
@@ -71,6 +106,39 @@ export async function login(
     user: data.user,
     token,
   };
+}
+
+export async function registerUser(
+  payload: RegisterPayload
+) {
+  const response = await fetch(
+    `${API_URL}/api/users/`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type':
+          'application/json',
+      },
+      body: JSON.stringify({
+        ...payload,
+        role: 'user',
+      }),
+    }
+  );
+
+  const data =
+    await readJsonResponse(response);
+
+  if (!response.ok) {
+    throw new Error(
+      getErrorMessage(
+        data,
+        'Erro ao criar cadastro'
+      )
+    );
+  }
+
+  return data;
 }
 
 export function getStoredToken(): string | null {

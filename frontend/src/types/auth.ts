@@ -1,7 +1,9 @@
 export interface AuthUser {
-  id: string;
-  name: string;
+  id: number;
+  username: string;
+  name?: string;
   email: string;
+  role?: string;
 }
 
 export interface AuthSession {
@@ -9,4 +11,4 @@ export interface AuthSession {
   token: string;
 }
 
-export interface LoginResponse extends AuthSession {}
+export type LoginResponse = AuthSession;

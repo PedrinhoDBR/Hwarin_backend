@@ -1,5 +1,5 @@
-from pydantic import BaseModel, ConfigDict
-from typing import Optional
+from pydantic import BaseModel, ConfigDict, Field
+from typing import List, Optional
 
 
 class StoryResponse(BaseModel):
@@ -13,6 +13,8 @@ class StoryResponse(BaseModel):
     master_story_id: Optional[int] = None
     language: Optional[str] = None
     cover: Optional[str] = None
+    genres: List[str] = Field(default_factory=list)
+    tags: List[str] = Field(default_factory=list)
 
 class StoryCreate(BaseModel):
     title: str
@@ -22,3 +24,5 @@ class StoryCreate(BaseModel):
     master_story_id: Optional[int] = None
     language: Optional[str] = None
     cover: Optional[str] = None
+    genres: List[str] = Field(default_factory=list)
+    tags: List[str] = Field(default_factory=list)
