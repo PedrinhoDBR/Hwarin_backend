@@ -26,15 +26,31 @@ class Story(Base):
     )
     translations = relationship("Story", back_populates="master_story")
 
-    user_stories = relationship("UserStory", back_populates="story")
+    user_stories = relationship(
+        "UserStory",
+        back_populates="story",
+        cascade="all, delete-orphan",
+    )
     filters = relationship(
         "StoryFilter",
         back_populates="story",
         cascade="all, delete-orphan",
     )
-    ratings = relationship("StoryRating", back_populates="story")
-    infos = relationship("StoryInfos", back_populates="story")
-    suggestions = relationship("StorySuggestion", back_populates="story")
+    ratings = relationship(
+        "StoryRating",
+        back_populates="story",
+        cascade="all, delete-orphan",
+    )
+    infos = relationship(
+        "StoryInfos",
+        back_populates="story",
+        cascade="all, delete-orphan",
+    )
+    suggestions = relationship(
+        "StorySuggestion",
+        back_populates="story",
+        cascade="all, delete-orphan",
+    )
 
     chapters = relationship("Chapter",back_populates="story",cascade="all, delete-orphan",order_by="Chapter.chapter_number",)
 
@@ -53,3 +69,16 @@ class Story(Base):
             for story_filter in self.filters
             if story_filter.type in TAG_FILTER_TYPES and story_filter.description
         ]
+
+    @property
+    def author(self):
+        author_link = next(
+            (
+                user_story
+                for user_story in self.user_stories
+                if user_story.role in {"autor", "author"}
+            ),
+            None,
+        )
+
+        return author_link.user if author_link else None

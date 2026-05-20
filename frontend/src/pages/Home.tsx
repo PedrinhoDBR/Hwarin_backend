@@ -19,6 +19,12 @@ export interface Story {
   cover_url?: string | null;
   tags?: string[];
   genres?: string[];
+  author?: {
+    id: number;
+    username: string;
+    avatar_url?: string | null;
+    bio?: string | null;
+  } | null;
 }
 
 async function getStories(): Promise<Story[]> {

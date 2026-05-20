@@ -91,18 +91,25 @@ export default function StoryDetails() {
 
   const followMutation = useMutation({
     mutationFn: async () => {
+      let response;
+
       if (isFollowing) {
-        await authFetch(`/api/follows/${storyId}`, {
+        response = await authFetch(`/api/follows/${storyId}`, {
           method: 'DELETE',
         });
       } else {
-        await authFetch(`/api/follows?story_id=${storyId}`, {
+        response = await authFetch(`/api/follows?story_id=${storyId}`, {
           method: 'POST',
         });
+      }
+
+      if (!response.ok) {
+        throw new Error('Erro ao atualizar historia seguida');
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['follows', storyId] });
+      queryClient.invalidateQueries({ queryKey: ['stories-library-following'] });
     },
   });
 
@@ -153,7 +160,7 @@ export default function StoryDetails() {
           <div className="space-y-6">
             <div className="rounded-2xl border border-border/30 bg-card/50 p-5">
               <h3 className="font-heading font-bold text-sm uppercase tracking-wider mb-3">
-                Suas Estatísticas
+                Estatisticas
               </h3>
 
               <div className="space-y-2 text-sm">
@@ -163,7 +170,7 @@ export default function StoryDetails() {
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Capítulos</span>
+                  <span className="text-muted-foreground">Capitulos</span>
                   <span className="font-medium">
                     {chapters.filter(c => c.status === 'publicado').length}
                   </span>
@@ -177,7 +184,7 @@ export default function StoryDetails() {
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Comentários</span>
+                  <span className="text-muted-foreground">Comentarios</span>
                   <span className="font-medium">{comments.length}</span>
                 </div>
               </div>
@@ -186,7 +193,7 @@ export default function StoryDetails() {
             {story.genres?.length > 0 && (
               <div className="rounded-2xl border border-border/30 bg-card/50 p-5">
                 <h3 className="font-heading font-bold text-sm uppercase tracking-wider mb-3">
-                  Gêneros
+                  Generos
                 </h3>
 
                 <div className="flex flex-wrap gap-2">

@@ -79,6 +79,33 @@ def ensure_story_schema() -> None:
             )
 
 
+def ensure_user_profile_schema() -> None:
+    inspector = inspect(engine)
+
+    if "users" not in inspector.get_table_names():
+        return
+
+    columns = {
+        column["name"]
+        for column in inspector.get_columns("users")
+    }
+
+    statements = []
+
+    if "avatar_url" not in columns:
+        statements.append("ALTER TABLE users ADD COLUMN avatar_url VARCHAR")
+
+    if "bio" not in columns:
+        statements.append("ALTER TABLE users ADD COLUMN bio TEXT")
+
+    if not statements:
+        return
+
+    with engine.begin() as connection:
+        for statement in statements:
+            connection.execute(text(statement))
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     if ENVIRONMENT == "DEVELOPMENT":
@@ -86,6 +113,7 @@ async def lifespan(app: FastAPI):
 
     Base.metadata.create_all(bind=engine)
     ensure_story_schema()
+    ensure_user_profile_schema()
     ensure_admin_user()
     yield
 

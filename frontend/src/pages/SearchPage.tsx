@@ -25,15 +25,15 @@ const STATUS_FILTERS = [
 ];
 
 const LANGUAGE_FILTERS = [
-  'Portugu\u00c3\u00aas',
+  'Portugues',
   'English',
-  'Espa\u00c3\u00b1ol',
+  'Espanol',
 ];
 
 const GENRE_FILTERS = [
-  'Fantasia', 'Romance', 'Fic\u00c3\u00a7\u00c3\u00a3o Cient\u00c3\u00adfica', 'Terror', 'Aventura',
-  'Drama', 'Mist\u00c3\u00a9rio', 'Com\u00c3\u00a9dia', 'A\u00c3\u00a7\u00c3\u00a3o', 'Suspense',
-  'Fanfic', 'Slice of Life', 'Sobrenatural', 'Hist\u00c3\u00b3rico', 'Outro',
+  'Fantasia', 'Romance', 'Ficcao Cientifica', 'Terror', 'Aventura',
+  'Drama', 'Misterio', 'Comedia', 'Acao', 'Suspense',
+  'Fanfic', 'Slice of Life', 'Sobrenatural', 'Historico', 'Outro',
 ];
 
 type SearchFilters = {
