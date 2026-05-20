@@ -76,7 +76,7 @@ export default function Layout() {
           type="button"
           onClick={() => navigate('/user')}
           title={username}
-          className="mb-2 flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white transition-transform hover:scale-105"
+          className="mb-2 flex h-10 w-10 items-center justify-center overflow-hidden rounded-full text-sm font-semibold text-white transition-transform hover:scale-105"
           style={{
             background: brand.accentGradient,
             boxShadow: `0 0 12px ${alpha(
@@ -86,7 +86,15 @@ export default function Layout() {
             fontWeight: theme.typography.h5Weight,
           }}
         >
-          {userInitial}
+          {user?.avatar_url ? (
+            <img
+              src={user.avatar_url}
+              alt={username}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            userInitial
+          )}
         </button>
 
         {NAV_ITEMS.map((item) => {

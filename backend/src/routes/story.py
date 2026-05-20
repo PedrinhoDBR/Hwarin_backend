@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import and_, or_
-from sqlalchemy.orm import Session
+from sqlalchemy import and_, func, or_
+from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from src.models.user_story import UserStory
 from src.db.database import get_db
@@ -9,11 +9,24 @@ from src.models.story_filter import StoryFilter
 from src.schemas.story import StoryResponse,StoryCreate
 from src.utils.user import get_current_user
 from src.models.user import User
+from src.models.chapter import Chapter
+from src.models.story_infos import StoryInfos
+from src.models.story_filter import StoryFilter
+from src.models.story_rating import StoryRating
+from src.models.story_suggestion import StorySuggestion
 
 router = APIRouter()
 
 GENRE_FILTER_TYPES = ("genre", "genres", "genero", "generos", "gênero", "gêneros")
 TAG_FILTER_TYPES = ("tag", "tags")
+DRAFT_STATUSES = (
+    "draft",
+    "rascunho",
+    "elaboracao",
+    "em_elaboracao",
+    "em elaboracao",
+    "em elaboração",
+)
 
 
 def _clean_values(values: List[str]) -> List[str]:
@@ -58,6 +71,25 @@ def _filter_match(filter_types: tuple[str, ...], value: str):
     )
 
 
+def _only_visible_stories(query):
+    normalized_status = func.lower(func.coalesce(Story.status, ""))
+
+    return query.filter(~normalized_status.in_(DRAFT_STATUSES))
+
+
+def _is_author(db: Session, story_id: int, user_id: int) -> bool:
+    return (
+        db.query(UserStory)
+        .filter(
+            UserStory.story_id == story_id,
+            UserStory.user_id == user_id,
+            UserStory.role.in_(("autor", "author")),
+        )
+        .first()
+        is not None
+    )
+
+
 
 @router.get("", response_model=List[StoryResponse])
 @router.get("/", response_model=List[StoryResponse])
@@ -67,9 +99,15 @@ def get_stories(
     language: Optional[str] = Query(default=None),
     genre: Optional[str] = Query(default=None),
     tag: Optional[str] = Query(default=None),
+    include_drafts: bool = Query(default=False),
     db: Session = Depends(get_db),
 ):
-    stories_query = db.query(Story)
+    stories_query = db.query(Story).options(
+        joinedload(Story.user_stories).joinedload(UserStory.user)
+    )
+
+    if not include_drafts:
+        stories_query = _only_visible_stories(stories_query)
 
     if q and q.strip():
         search = f"%{q.strip()}%"
@@ -105,16 +143,66 @@ def get_my_stories(
 ):
     stories = (
         db.query(Story)
+        .options(joinedload(Story.user_stories).joinedload(UserStory.user))
         .join(UserStory)
         .filter(UserStory.user_id == current_user.id)
+        .filter(UserStory.role.in_(("autor", "author")))
         .all()
     )
 
     return stories
 
+
+@router.get("/following", response_model=List[StoryResponse])
+def get_followed_stories(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    stories = (
+        _only_visible_stories(
+            db.query(Story)
+            .options(joinedload(Story.user_stories).joinedload(UserStory.user))
+            .join(UserStory)
+            .filter(
+                UserStory.user_id == current_user.id,
+                UserStory.role == "follow",
+            )
+        )
+        .all()
+    )
+
+    return stories
+
+
+@router.get("/author/{author_id}", response_model=List[StoryResponse])
+def get_stories_by_author(
+    author_id: int,
+    db: Session = Depends(get_db),
+):
+    stories = (
+        _only_visible_stories(
+            db.query(Story)
+            .options(joinedload(Story.user_stories).joinedload(UserStory.user))
+            .join(UserStory)
+            .filter(
+                UserStory.user_id == author_id,
+                UserStory.role.in_(("autor", "author")),
+            )
+        )
+        .all()
+    )
+
+    return stories
+
+
 @router.get("/{story_id}", response_model=StoryResponse)
 def get_story(story_id: int, db: Session = Depends(get_db)):
-    story = db.query(Story).filter(Story.id == story_id).first()
+    story = (
+        db.query(Story)
+        .options(joinedload(Story.user_stories).joinedload(UserStory.user))
+        .filter(Story.id == story_id)
+        .first()
+    )
     if not story:
         raise HTTPException(status_code=404, detail="Story not found")
     return story
@@ -161,10 +249,37 @@ def create_story(
 
 
 @router.delete("/{story_id}", status_code=204)
-def delete_story(story_id: int, db: Session = Depends(get_db)):
+def delete_story(
+    story_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     story = db.query(Story).filter(Story.id == story_id).first()
     if not story:
         raise HTTPException(status_code=404, detail="Story not found")
+
+    if not _is_author(db, story_id, current_user.id) and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="You cannot delete this story")
+
+    db.query(Chapter).filter(Chapter.story_id == story_id).delete(
+        synchronize_session=False
+    )
+    db.query(StoryFilter).filter(StoryFilter.story_id == story_id).delete(
+        synchronize_session=False
+    )
+    db.query(StoryRating).filter(StoryRating.story_id == story_id).delete(
+        synchronize_session=False
+    )
+    db.query(StoryInfos).filter(StoryInfos.story_id == story_id).delete(
+        synchronize_session=False
+    )
+    db.query(StorySuggestion).filter(StorySuggestion.story_id == story_id).delete(
+        synchronize_session=False
+    )
+    db.query(UserStory).filter(UserStory.story_id == story_id).delete(
+        synchronize_session=False
+    )
+
     db.delete(story)
     db.commit()
     return None
@@ -173,7 +288,8 @@ def delete_story(story_id: int, db: Session = Depends(get_db)):
 def update_story(
     story_id: int,
     story: StoryCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     existing_story = (
         db.query(Story)
@@ -186,6 +302,9 @@ def update_story(
             status_code=404,
             detail="Story not found"
         )
+
+    if not _is_author(db, story_id, current_user.id) and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="You cannot edit this story")
 
     existing_story.title = story.title
     existing_story.subtitle = story.subtitle

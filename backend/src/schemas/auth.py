@@ -12,6 +12,8 @@ class UserResponse(BaseModel):
     username: str
     email: str
     role: str
+    avatar_url: str | None = None
+    bio: str | None = None
 
     class Config:
         from_attributes = True
@@ -23,6 +25,8 @@ class LoginUserResponse(BaseModel):
     username: str
     email: str
     role: str
+    avatar_url: str | None = None
+    bio: str | None = None
 
 
 class LoginResponse(BaseModel):

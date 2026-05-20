@@ -7,6 +7,7 @@ import MyStories from '../pages/MyStory';
 import StoryDetails from '../pages/StoryDetail';
 import ChapterReader from '../pages/ChapterReader';
 import Library from '../pages/Library';
+import AuthorPage from '../pages/Author';
 
 export interface PrivateRouteDefinition {
   path: string;
@@ -19,6 +20,7 @@ export const privateRoutes: PrivateRouteDefinition[] = [
   { path: '/story/:id', element: <CreateStory /> },
   { path: '/search', element: <SearchPage /> },
   { path: '/library', element: <Library /> },
+  { path: '/autor/:id', element: <AuthorPage /> },
   { path: '/story/new', element: <CreateStory /> },
   { path: '/stories', element: <MyStories /> },
   { path: '/historia/:id', element: <StoryDetails /> },
