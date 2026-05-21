@@ -154,7 +154,12 @@ export default function StoryDetails() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <ChapterList chapters={chapters} storyId={storyId} />
-            <CommentsSection comments={comments} storyId={storyId} user={user} />
+            <CommentsSection
+              comments={comments}
+              ratings={ratings}
+              storyId={storyId}
+              user={user}
+            />
           </div>
 
           <div className="space-y-6">
